@@ -146,7 +146,7 @@
                     </div>
 
                     <div class="field-grid field-grid-checks">
-                        <div class="check-group">
+                        <div class="check-group" id="intereses-group">
                             <p>Categorías de interés</p>
                             <label><input type="checkbox" name="interes" value="Electrónica"> Electrónica</label>
                             <label><input type="checkbox" name="interes" value="Indumentaria"> Indumentaria</label>
@@ -154,7 +154,7 @@
                             <label><input type="checkbox" name="interes" value="Otros"> Otros</label>
                         </div>
 
-                        <div class="check-group">
+                        <div class="check-group" id="tipo-cliente-group">
                             <p>Tipo de cliente</p>
                             <label><input type="radio" name="tipo-cliente" value="Consumidor final" checked> Consumidor final</label>
                             <label><input type="radio" name="tipo-cliente" value="Revendedor"> Revendedor</label>
@@ -192,6 +192,12 @@
 
                 <p class="login-link">Ya tengo cuenta, <a href="#">iniciar sesión</a></p>
             </form>
+
+            <div class="success-message" id="success-message">
+                <h2>¡Registro exitoso!</h2>
+                <p id="success-text">Bienvenido a GlobalImport S.A. Hemos registrado tu cuenta correctamente.</p>
+                <a href="index.html" class="btn btn-primary">Volver al inicio</a>
+            </div>
         </div>
     </main>
 </body>

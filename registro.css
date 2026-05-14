@@ -72,6 +72,58 @@ body {
     border-color: #d93025 !important;
 }
 
+.campo-error {
+    border-color: #d93025 !important;
+    background-color: rgba(217, 48, 37, 0.05);
+}
+
+.campo-error:focus {
+    box-shadow: 0 0 0 4px rgba(217, 48, 37, 0.16);
+}
+
+.campo-ok {
+    border-color: #28a745 !important;
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.campo-ok:focus {
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.16);
+}
+
+.error-message {
+    display: block;
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.success-message {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    border-radius: 12px;
+    margin-top: 2rem;
+}
+
+.success-message.show {
+    display: block;
+}
+
+.success-message h2 {
+    margin: 0 0 1rem;
+    font-size: 2rem;
+    font-family: var(--font-heading);
+}
+
+.success-message p {
+    margin: 0 0 2rem;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
 .form-header {
     padding: 2.5rem 3rem;
     background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));

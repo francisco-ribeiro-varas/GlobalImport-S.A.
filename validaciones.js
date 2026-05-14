@@ -1,14 +1,18 @@
-// validaciones.js - Validaciones para el formulario de registro
+// validaciones.js - Validaciones para el formulario de registro con retroalimentación visual
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('.registration-form');
+    const successMessage = document.getElementById('success-message');
+    const successText = document.getElementById('success-text');
+
+    // Elementos del formulario
     const textarea = document.getElementById('referencia');
     const charCounter = document.querySelector('.char-counter');
     const passwordInput = document.getElementById('password');
     const strengthBar = document.querySelector('.strength-bar span');
     const strengthText = document.querySelector('.password-strength span');
 
-    // Contador de caracteres para textarea
+    // Contador de caracteres para textarea (tiempo real)
     if (textarea && charCounter) {
         textarea.addEventListener('input', function() {
             const length = this.value.length;
@@ -23,21 +27,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Validación en submit
+    // Validación en tiempo real - blur events para cada campo
+    setupRealTimeValidation();
+
+    // Validación principal en submit
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (validateForm()) {
-            alert('Formulario válido. Registro exitoso!');
-            // Aquí iría el envío real del formulario
+            showSuccessMessage();
         }
     });
 
-    // Función principal de validación
+    // Función para configurar validación en tiempo real
+    function setupRealTimeValidation() {
+        // Campos de datos personales
+        document.getElementById('nombre').addEventListener('blur', () => validateField('nombre', validateName));
+        document.getElementById('nacimiento').addEventListener('blur', () => validateField('nacimiento', validateBirthDate));
+        document.getElementById('documento').addEventListener('blur', () => validateField('documento', validateRut));
+        document.getElementById('genero').addEventListener('blur', () => validateField('genero', validateRequired));
+        document.getElementById('nacionalidad').addEventListener('blur', () => validateField('nacionalidad', validateRequired));
+
+        // Campos de contacto
+        document.getElementById('email').addEventListener('blur', () => validateField('email', validateEmail));
+        document.getElementById('email-confirm').addEventListener('blur', () => validateField('email-confirm', validateEmailConfirm));
+        document.getElementById('password').addEventListener('blur', () => validateField('password', validatePassword));
+        document.getElementById('password-confirm').addEventListener('blur', () => validateField('password-confirm', validatePasswordConfirm));
+        document.getElementById('telefono').addEventListener('blur', () => validateField('telefono', validatePhone));
+
+        // Campos de dirección
+        document.getElementById('pais').addEventListener('blur', () => validateField('pais', validateRequired));
+        document.getElementById('provincia').addEventListener('blur', () => validateField('provincia', validateRequired));
+        document.getElementById('ciudad').addEventListener('blur', () => validateField('ciudad', validateCity));
+        document.getElementById('calle').addEventListener('blur', () => validateField('calle', validateAddress));
+        document.getElementById('codigo-postal').addEventListener('blur', () => validateField('codigo-postal', validatePostalCode));
+
+        // Limpiar errores al escribir (input events)
+        setupInputClearing();
+    }
+
+    // Función para configurar limpieza de errores al escribir
+    function setupInputClearing() {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearFieldError(this.id);
+            });
+            input.addEventListener('change', function() {
+                clearFieldError(this.id);
+            });
+        });
+    }
+
+    // Función para validar un campo individual
+    function validateField(fieldId, validationFunction) {
+        const field = document.getElementById(fieldId);
+        const error = validationFunction(field.value, fieldId);
+
+        if (error) {
+            showFieldError(fieldId, error);
+        } else {
+            showFieldSuccess(fieldId);
+        }
+    }
+
+    // Función principal de validación (para submit)
     function validateForm() {
         let isValid = true;
-
-        // Limpiar errores previos
-        clearErrors();
+        clearAllErrors();
 
         // Validaciones por sección
         isValid &= validatePersonalData();
@@ -48,190 +104,275 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
-    // Validaciones Datos Personales
+    // FUNCIONES DE VALIDACIÓN INDIVIDUALES
+    function validateName(value) {
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!value.trim()) return 'El nombre es requerido';
+        if (value.length < 3 || value.length > 60) return 'El nombre debe tener entre 3 y 60 caracteres';
+        if (!nameRegex.test(value)) return 'El nombre solo puede contener letras y espacios';
+        return null;
+    }
+
+    function validateBirthDate(value) {
+        if (!value) return 'La fecha de nacimiento es requerida';
+        const birthDate = new Date(value);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        if (age < 18) return 'Debes ser mayor de 18 años';
+        return null;
+    }
+
+    function validateRut(value) {
+        if (!value.trim()) return 'El RUT es requerido';
+        if (!validateRutFormat(value)) return 'El RUT no tiene un formato válido';
+        return null;
+    }
+
+    function validateRequired(value) {
+        if (!value.trim()) return 'Este campo es requerido';
+        return null;
+    }
+
+    function validateEmail(value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value.trim()) return 'El email es requerido';
+        if (!emailRegex.test(value)) return 'El email no tiene un formato válido';
+        return null;
+    }
+
+    function validateEmailConfirm(value) {
+        const email = document.getElementById('email').value;
+        if (!value.trim()) return 'La confirmación del email es requerida';
+        if (value !== email) return 'Los emails no coinciden';
+        return null;
+    }
+
+    function validatePassword(value) {
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+        if (!value) return 'La contraseña es requerida';
+        if (!passwordRegex.test(value)) return 'La contraseña debe tener al menos 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial';
+        return null;
+    }
+
+    function validatePasswordConfirm(value) {
+        const password = document.getElementById('password').value;
+        if (!value) return 'La confirmación de contraseña es requerida';
+        if (value !== password) return 'Las contraseñas no coinciden';
+        return null;
+    }
+
+    function validatePhone(value) {
+        const phoneRegex = /^[\d\s\-\+]+$/;
+        const digitsOnly = value.replace(/\D/g, '');
+        if (!value.trim()) return 'El teléfono es requerido';
+        if (!phoneRegex.test(value)) return 'El teléfono contiene caracteres inválidos';
+        if (digitsOnly.length < 8) return 'El teléfono debe tener al menos 8 dígitos';
+        return null;
+    }
+
+    function validateCity(value) {
+        const cityRegex = /^[a-zA-Z\s]+$/;
+        if (!value.trim()) return 'La ciudad es requerida';
+        if (value.length < 2) return 'La ciudad debe tener al menos 2 caracteres';
+        if (!cityRegex.test(value)) return 'La ciudad solo puede contener letras y espacios';
+        return null;
+    }
+
+    function validateAddress(value) {
+        if (!value.trim()) return 'La dirección es requerida';
+        if (value.length < 5) return 'La dirección debe tener al menos 5 caracteres';
+        return null;
+    }
+
+    function validatePostalCode(value) {
+        const postalRegex = /^[a-zA-Z0-9]+$/;
+        if (!value.trim()) return 'El código postal es requerido';
+        if (value.length < 4 || value.length > 10) return 'El código postal debe tener entre 4 y 10 caracteres';
+        if (!postalRegex.test(value)) return 'El código postal solo puede contener letras y números';
+        return null;
+    }
+
+    // FUNCIONES DE VALIDACIÓN POR SECCIONES (para submit)
     function validatePersonalData() {
         let isValid = true;
 
-        // Nombre completo
-        const nombre = document.getElementById('nombre');
-        const nombreRegex = /^[a-zA-Z\s]+$/;
-        if (!nombre.value.trim() || nombre.value.length < 3 || nombre.value.length > 60 || !nombreRegex.test(nombre.value)) {
-            showError(nombre, 'Nombre debe contener solo letras y espacios, entre 3 y 60 caracteres.');
-            isValid = false;
-        }
+        const fields = [
+            { id: 'nombre', validator: validateName },
+            { id: 'nacimiento', validator: validateBirthDate },
+            { id: 'documento', validator: validateRut },
+            { id: 'genero', validator: validateRequired },
+            { id: 'nacionalidad', validator: validateRequired }
+        ];
 
-        // Fecha de nacimiento
-        const nacimiento = document.getElementById('nacimiento');
-        if (nacimiento.value) {
-            const birthDate = new Date(nacimiento.value);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            if (age < 18) {
-                showError(nacimiento, 'Debes ser mayor de 18 años.');
+        fields.forEach(field => {
+            const element = document.getElementById(field.id);
+            const error = field.validator(element.value);
+            if (error) {
+                showFieldError(field.id, error);
                 isValid = false;
+            } else {
+                showFieldSuccess(field.id);
             }
-        } else {
-            showError(nacimiento, 'Fecha de nacimiento es requerida.');
-            isValid = false;
-        }
-
-        // RUT chileno
-        const documento = document.getElementById('documento');
-        if (!documento.value.trim() || !validateRut(documento.value)) {
-            showError(documento, 'RUT inválido. Debe ser un RUT chileno válido.');
-            isValid = false;
-        }
-
-        // Género
-        const genero = document.getElementById('genero');
-        if (!genero.value) {
-            showError(genero, 'Debes seleccionar un género.');
-            isValid = false;
-        }
-
-        // Nacionalidad
-        const nacionalidad = document.getElementById('nacionalidad');
-        if (!nacionalidad.value) {
-            showError(nacionalidad, 'Debes seleccionar una nacionalidad.');
-            isValid = false;
-        }
+        });
 
         return isValid;
     }
 
-    // Validaciones Contacto y Acceso
     function validateContactData() {
         let isValid = true;
 
-        // Email
-        const email = document.getElementById('email');
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email.value)) {
-            showError(email, 'Email debe tener un formato válido.');
-            isValid = false;
-        }
+        const fields = [
+            { id: 'email', validator: validateEmail },
+            { id: 'email-confirm', validator: validateEmailConfirm },
+            { id: 'password', validator: validatePassword },
+            { id: 'password-confirm', validator: validatePasswordConfirm },
+            { id: 'telefono', validator: validatePhone }
+        ];
 
-        // Confirmar email
-        const emailConfirm = document.getElementById('email-confirm');
-        if (email.value !== emailConfirm.value) {
-            showError(emailConfirm, 'Los emails no coinciden.');
-            isValid = false;
-        }
-
-        // Contraseña
-        const password = document.getElementById('password');
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-        if (!passwordRegex.test(password.value)) {
-            showError(password, 'Contraseña debe tener al menos 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial.');
-            isValid = false;
-        }
-
-        // Confirmar contraseña
-        const passwordConfirm = document.getElementById('password-confirm');
-        if (password.value !== passwordConfirm.value) {
-            showError(passwordConfirm, 'Las contraseñas no coinciden.');
-            isValid = false;
-        }
-
-        // Teléfono
-        const telefono = document.getElementById('telefono');
-        const telefonoRegex = /^[\d\s\-\+]+$/;
-        const digitsOnly = telefono.value.replace(/\D/g, '');
-        if (!telefonoRegex.test(telefono.value) || digitsOnly.length < 8) {
-            showError(telefono, 'Teléfono debe contener al menos 8 dígitos numéricos.');
-            isValid = false;
-        }
+        fields.forEach(field => {
+            const element = document.getElementById(field.id);
+            const error = field.validator(element.value);
+            if (error) {
+                showFieldError(field.id, error);
+                isValid = false;
+            } else {
+                showFieldSuccess(field.id);
+            }
+        });
 
         return isValid;
     }
 
-    // Validaciones Dirección
     function validateAddressData() {
         let isValid = true;
 
-        // País
-        const pais = document.getElementById('pais');
-        if (!pais.value) {
-            showError(pais, 'País es requerido.');
-            isValid = false;
-        }
+        const fields = [
+            { id: 'pais', validator: validateRequired },
+            { id: 'provincia', validator: validateRequired },
+            { id: 'ciudad', validator: validateCity },
+            { id: 'calle', validator: validateAddress },
+            { id: 'codigo-postal', validator: validatePostalCode }
+        ];
 
-        // Provincia
-        const provincia = document.getElementById('provincia');
-        if (!provincia.value.trim()) {
-            showError(provincia, 'Provincia/Estado es requerido.');
-            isValid = false;
-        }
-
-        // Ciudad
-        const ciudad = document.getElementById('ciudad');
-        const ciudadRegex = /^[a-zA-Z\s]+$/;
-        if (!ciudad.value.trim() || ciudad.value.length < 2 || !ciudadRegex.test(ciudad.value)) {
-            showError(ciudad, 'Ciudad debe contener solo letras y espacios, mínimo 2 caracteres.');
-            isValid = false;
-        }
-
-        // Calle y número
-        const calle = document.getElementById('calle');
-        if (!calle.value.trim() || calle.value.length < 5) {
-            showError(calle, 'Calle y número es requerido, mínimo 5 caracteres.');
-            isValid = false;
-        }
-
-        // Código postal
-        const codigoPostal = document.getElementById('codigo-postal');
-        const codigoRegex = /^[a-zA-Z0-9]+$/;
-        if (!codigoPostal.value.trim() || codigoPostal.value.length < 4 || codigoPostal.value.length > 10 || !codigoRegex.test(codigoPostal.value)) {
-            showError(codigoPostal, 'Código postal debe ser alfanumérico, entre 4 y 10 caracteres.');
-            isValid = false;
-        }
+        fields.forEach(field => {
+            const element = document.getElementById(field.id);
+            const error = field.validator(element.value);
+            if (error) {
+                showFieldError(field.id, error);
+                isValid = false;
+            } else {
+                showFieldSuccess(field.id);
+            }
+        });
 
         return isValid;
     }
 
-    // Validaciones Preferencias y Términos
     function validatePreferencesData() {
         let isValid = true;
 
-        // Al menos una categoría de interés
+        // Categorías de interés
         const intereses = document.querySelectorAll('input[name="interes"]:checked');
         if (intereses.length === 0) {
-            const interesesGroup = document.querySelector('.check-group');
-            showError(interesesGroup, 'Debes seleccionar al menos una categoría de interés.');
+            showFieldError('intereses-group', 'Debes seleccionar al menos una categoría de interés.');
             isValid = false;
+        } else {
+            clearFieldError('intereses-group');
         }
 
         // Tipo de cliente
         const tipoCliente = document.querySelector('input[name="tipo-cliente"]:checked');
         if (!tipoCliente) {
-            const tipoClienteGroup = document.querySelectorAll('.check-group')[1];
-            showError(tipoClienteGroup, 'Debes seleccionar un tipo de cliente.');
+            showFieldError('tipo-cliente-group', 'Debes seleccionar un tipo de cliente.');
             isValid = false;
+        } else {
+            clearFieldError('tipo-cliente-group');
         }
 
         // Términos y condiciones
         const terminos = document.getElementById('terminos');
         if (!terminos.checked) {
-            showError(terminos.parentElement, 'Debes aceptar los Términos y Condiciones.');
+            showFieldError('terminos', 'Debes aceptar los Términos y Condiciones.');
             isValid = false;
+        } else {
+            clearFieldError('terminos');
         }
 
         // Política de privacidad
         const privacidad = document.getElementById('privacidad');
         if (!privacidad.checked) {
-            showError(privacidad.parentElement, 'Debes aceptar la Política de Privacidad.');
+            showFieldError('privacidad', 'Debes aceptar la Política de Privacidad.');
             isValid = false;
+        } else {
+            clearFieldError('privacidad');
         }
 
         return isValid;
     }
 
+    // FUNCIONES DE MANEJO DE ERRORES Y RETROALIMENTACIÓN VISUAL
+    function showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        // Agregar clase de error
+        field.classList.remove('campo-ok');
+        field.classList.add('campo-error');
+
+        // Remover mensaje de error existente
+        clearFieldError(fieldId);
+
+        // Crear y mostrar nuevo mensaje de error
+        const errorElement = document.createElement('span');
+        errorElement.className = 'error-message';
+        errorElement.textContent = message;
+
+        // Insertar después del campo
+        field.parentNode.insertBefore(errorElement, field.nextSibling);
+    }
+
+    function showFieldSuccess(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        // Agregar clase de éxito
+        field.classList.remove('campo-error');
+        field.classList.add('campo-ok');
+
+        // Remover mensaje de error
+        clearFieldError(fieldId);
+    }
+
+    function clearFieldError(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        // Remover clases
+        field.classList.remove('campo-error', 'campo-ok');
+
+        // Remover mensaje de error existente
+        const existingError = field.parentNode.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    function clearAllErrors() {
+        // Limpiar todas las clases de error
+        document.querySelectorAll('.campo-error, .campo-ok').forEach(el => {
+            el.classList.remove('campo-error', 'campo-ok');
+        });
+
+        // Remover todos los mensajes de error
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+    }
+
     // Función para validar RUT chileno
-    function validateRut(rut) {
+    function validateRutFormat(rut) {
         // Limpiar el RUT
         rut = rut.replace(/[^0-9kK]/g, '');
 
@@ -259,19 +400,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return calculatedDv === dv;
     }
 
-    // Función para mostrar errores
-    function showError(element, message) {
-        element.classList.add('input-error');
-        const errorElement = document.createElement('span');
-        errorElement.className = 'error-message';
-        errorElement.textContent = message;
-        element.appendChild(errorElement);
-    }
+    // Función para mostrar mensaje de éxito
+    function showSuccessMessage() {
+        const nombre = document.getElementById('nombre').value;
+        const form = document.querySelector('.registration-form');
+        const successMessage = document.getElementById('success-message');
+        const successText = document.getElementById('success-text');
 
-    // Función para limpiar errores
-    function clearErrors() {
-        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        // Personalizar mensaje con el nombre
+        successText.textContent = `¡Bienvenido ${nombre}! Hemos registrado tu cuenta correctamente en GlobalImport S.A.`;
+
+        // Ocultar formulario y mostrar mensaje de éxito
+        form.style.display = 'none';
+        successMessage.classList.add('show');
     }
 
     // Función para actualizar la fortaleza de la contraseña
