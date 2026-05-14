@@ -68,10 +68,18 @@ body {
     box-shadow: 0 0 0 4px rgba(217, 48, 37, 0.16);
 }
 
+.input-error.checkbox-inline {
+    border-color: #d93025 !important;
+}
+
 .form-header {
     padding: 2.5rem 3rem;
     background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
     color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
 }
 
 .form-header .eyebrow {
@@ -152,6 +160,21 @@ body {
     grid-column: 1 / -1;
 }
 
+.char-counter {
+    display: block;
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin-top: 0.25rem;
+}
+
+.error-message {
+    display: block;
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
 .check-group {
     display: grid;
     gap: 0.8rem;
@@ -180,11 +203,13 @@ body {
     display: grid;
     gap: 0.5rem;
     max-width: 520px;
+    grid-column: 1 / -1; /* Ocupa ambas columnas del grid */
 }
 
 .password-strength span {
     font-size: 0.95rem;
     color: var(--color-muted);
+    transition: color 0.3s ease;
 }
 
 .strength-bar {
@@ -196,9 +221,10 @@ body {
 
 .strength-bar span {
     display: block;
-    width: 45%;
+    width: 0%;
     height: 100%;
     background: linear-gradient(90deg, #47d1a3, #0d6efd);
+    transition: all 0.3s ease;
 }
 
 .field-grid-terms {
@@ -237,6 +263,39 @@ body {
     box-shadow: 0 14px 35px rgba(13, 109, 253, 0.18);
 }
 
+.btn-back {
+    align-self: flex-start;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-back svg {
+    transition: transform 0.3s ease;
+}
+
+.btn-back:hover svg {
+    transform: translateX(-2px);
+}
+
 .login-link {
     text-align: center;
     color: var(--color-muted);
@@ -267,6 +326,11 @@ body {
         padding-left: 1.5rem;
         padding-right: 1.5rem;
     }
+
+    .btn-back {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 600px) {
@@ -278,5 +342,24 @@ body {
     .registration-form {
         padding-left: 1rem;
         padding-right: 1rem;
+    }
+
+    .btn-back {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+
+    .btn-back {
+        align-self: stretch;
+        justify-content: center;
+        max-width: 200px;
+        margin: 0 auto;
     }
 }

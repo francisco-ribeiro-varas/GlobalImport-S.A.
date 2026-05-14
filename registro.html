@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="registro.css">
+    <script src="validaciones.js" defer></script>
 </head>
 <body>
     <main class="form-page">
@@ -18,6 +19,12 @@
                     <h1>Crear cuenta en GlobalImport S.A.</h1>
                     <p class="intro">Complete sus datos para acceder a importaciones, logística y promociones exclusivas.</p>
                 </div>
+                <a href="index.html" class="btn btn-secondary btn-back" title="Volver a la página principal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Volver al inicio
+                </a>
             </header>
 
             <form class="registration-form" action="#" method="post">
@@ -81,18 +88,18 @@
                         <label for="password">Contraseña<span>*</span></label>
                         <input id="password" type="password" name="password" required>
 
+                        <div class="password-strength">
+                            <span>Fuerza de contraseña</span>
+                            <div class="strength-bar">
+                                <span></span>
+                            </div>
+                        </div>
+
                         <label for="password-confirm">Confirmar contraseña<span>*</span></label>
                         <input id="password-confirm" type="password" name="password-confirm" required>
 
                         <label for="telefono">Teléfono<span>*</span></label>
                         <input id="telefono" type="tel" name="telefono" placeholder="Ej. +54 9 11 1234 5678" required>
-                    </div>
-
-                    <div class="password-strength">
-                        <span>Fuerza de contraseña</span>
-                        <div class="strength-bar">
-                            <span></span>
-                        </div>
                     </div>
                 </section>
 
@@ -129,8 +136,7 @@
                         <input id="piso" type="text" name="piso">
 
                         <label for="referencia" class="full-width">Referencia o instrucciones adicionales</label>
-                        <textarea id="referencia" name="referencia" class="full-width" maxlength="200" placeholder="Máximo 200 caracteres"></textarea>
-                    </div>
+                        <textarea id="referencia" name="referencia" class="full-width" maxlength="200" placeholder="Máximo 200 caracteres"></textarea>                        <span class="char-counter">0 / 200</span>                    </div>
                 </section>
 
                 <section class="form-section alternate-bg">
@@ -171,10 +177,10 @@
 
                     <div class="field-grid field-grid-terms">
                         <label class="checkbox-inline">
-                            <input type="checkbox" name="terminos" required> Acepto los <a href="#">Términos y Condiciones</a>
+                            <input id="terminos" type="checkbox" name="terminos" required> Acepto los <a href="#">Términos y Condiciones</a>
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" name="privacidad" required> Acepto la Política de Privacidad
+                            <input id="privacidad" type="checkbox" name="privacidad" required> Acepto la Política de Privacidad
                         </label>
                     </div>
                 </section>
